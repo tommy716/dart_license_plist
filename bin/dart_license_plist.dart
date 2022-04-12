@@ -4,7 +4,7 @@ import 'package:pub_updater/pub_updater.dart';
 
 import 'common/logger.dart';
 import 'common/utils.dart' as utils;
-import 'consts.dart';
+import 'common/consts.dart';
 import 'entity/license_info.dart';
 import 'entity/package_info.dart';
 import 'client/http_client.dart' as client;

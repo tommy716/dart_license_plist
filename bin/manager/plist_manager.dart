@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:collection/src/iterable_extensions.dart';
+import 'package:collection/collection.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../common/logger.dart';
-import '../consts.dart';
+import '../common/consts.dart';
 import '../entity/package_info.dart';
 
 class PlistManager {

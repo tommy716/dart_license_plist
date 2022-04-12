@@ -1,6 +1,5 @@
-import 'package:collection/src/iterable_extensions.dart';
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
-import 'package:xml/xml.dart';
 
 class HtmlParser {
   static Element? parseLicenseDom(Document html) {
