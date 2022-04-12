@@ -1,6 +1,16 @@
+/*
+ * html_parser.dart
+ *
+ * Copyright (c) 2022 Hiroki Nomura.
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+ */
+
 import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 
+/// A class that html parser.
 class HtmlParser {
   static Element? parseLicenseDom(Document html) {
     return html.querySelectorAll("a").firstWhereOrNull(

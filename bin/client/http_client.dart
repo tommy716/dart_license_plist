@@ -1,9 +1,21 @@
+/*
+ * http_client.dart
+ *
+ * Copyright (c) 2022 Hiroki Nomura.
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+ */
+
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:yaml/yaml.dart';
 
+import '../common/consts.dart';
+
 class HttpClient {
+  /// get package name list from pubspec.lock
   static List<dynamic> fetchPluginNameList() {
     Map<String, String> environment = Platform.environment;
     final pubspecPath = "${environment["PWD"]}/pubspec.lock";
@@ -21,6 +33,7 @@ class HttpClient {
     return packageMap.keys.toList();
   }
 
+  /// get html string
   static Future<String> fetchHtml(
     String url, {
     required String packageName,
@@ -33,12 +46,14 @@ class HttpClient {
     var responseString = await response.stream.bytesToString();
 
     if (response.isRedirect || shouldRedirect) {
-      if (response.headers["location"] != null &&
-          response.headers["location"]!.contains("api.flutter.dev")) {
-        final redirectUrl =
-            "https://api.flutter.dev/flutter/$packageName/$packageName-library.html";
-        return await fetchHtml(redirectUrl,
-            packageName: packageName, shouldRedirect: false);
+      final String? location = response.headers["localtion"];
+      if (location != null && location.contains("api.flutter.dev")) {
+        final redirectUrl = "$flutterApiUrl/$packageName/$packageName-library.html";
+        return await fetchHtml(
+          redirectUrl,
+          packageName: packageName,
+          shouldRedirect: false,
+        );
       }
     }
 

@@ -1,3 +1,12 @@
+/*
+ * dart_license_plist.dart
+ *
+ * Copyright (c) 2022 Hiroki Nomura.
+ *
+ * This software is released under the MIT License.
+ * http://opensource.org/licenses/mit-license.php
+ */
+
 import 'package:html/parser.dart';
 import 'package:html/dom.dart';
 import 'package:pub_updater/pub_updater.dart';
@@ -13,17 +22,18 @@ import 'manager/plist_manager.dart';
 import 'parser/html_parser.dart' as parser;
 
 Future<void> main(List<String> arguments) async {
+  // print library version and check library updates.
   if (arguments.contains("--version") || arguments.contains("-v")) {
-    print(packageVersion);
+    Logger.info(packageVersion);
 
-    // Check updates.
+    // check updates.
     final pubUpdater = PubUpdater();
     final isUpToDate = await pubUpdater.isUpToDate(
       packageName: packageName,
       currentVersion: packageVersion,
     );
 
-    // Exists New Version.
+    // exists New Version.
     if (!isUpToDate) {
       final latestVersion = await pubUpdater.getLatestVersion(packageName);
       final shouldUpdate = utils.promptBool(
@@ -38,36 +48,52 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
+  // set print debug log.
   if (arguments.contains("--verbose")) {
     Logger.setIsVerbose(true);
+    Logger.debug("Verbose Mode Enabled.");
   }
 
+  // package name list from pubspec.yamll
   final List<dynamic> packageNameList = client.HttpClient.fetchPluginNameList();
+  // package info list
   final List<PackageInfo> packageInfoList = [];
+  // package name list of can not create plist
   final List<String> errorPackageNameList = [];
 
+  /// create packageInfo from package name
   for (var packageName in packageNameList) {
     try {
+      // package site url on pub.dev
       final String packageSiteUrl = "$pubDevUrl/packages/$packageName";
       Logger.info("-----");
       Logger.info("Fetching $packageName data... (URL: $packageSiteUrl)");
+      // get package page in pub.dev
       final String siteHtmlString = await client.HttpClient.fetchHtml(
-          packageSiteUrl,
-          packageName: packageName);
+        packageSiteUrl,
+        packageName: packageName,
+      );
+      // package page html string to package page html document
       final Document siteHtml = parse(siteHtmlString);
+      // get license link dom from html document
       final Element? licenseDom = parser.HtmlParser.parseLicenseDom(siteHtml);
 
+      /// go next loop if license dom is null or license link is not found
       if (licenseDom == null || licenseDom.attributes["href"] == null) {
         Logger.error("$packageName's license not found. Skipping...");
         continue;
       }
 
+      // license page url
       String licenseUrl = licenseDom.attributes["href"]!;
-      final bool isGitHubRepositoryLicense =
-          licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
+      // true if license url is in github
+      final bool isGitHubRepositoryLicense = licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
 
+      // parsed license text
       String licenseText = "";
+
       if (isGitHubRepositoryLicense) {
+        // replace url path if url is in github
         licenseUrl = licenseUrl
             .replaceAll(
               "github.com",
@@ -82,18 +108,25 @@ Future<void> main(List<String> arguments) async {
               "",
             );
         Logger.info("$packageName's license url: $licenseUrl");
-        licenseText = await client.HttpClient.fetchHtml(licenseUrl,
-            packageName: packageName);
+        // fetch license text from LICENSE file in library's repository
+        licenseText = await client.HttpClient.fetchHtml(
+          licenseUrl,
+          packageName: packageName,
+        );
       } else {
         licenseUrl = "$pubDevUrl$licenseUrl";
         Logger.info("$packageName's license url: $licenseUrl");
+        // fetch license page html string from pub.dev
         final String licenseHtmlString = await client.HttpClient.fetchHtml(
-            licenseUrl,
-            packageName: packageName);
+          licenseUrl,
+          packageName: packageName,
+        );
+        // license html string to license html document
         final Document licenseHtml = parse(licenseHtmlString);
-        final Element? licenseTextDom =
-            parser.HtmlParser.parseLicenseTextDom(licenseHtml);
+        // get license text dom from license html document
+        final Element? licenseTextDom = parser.HtmlParser.parseLicenseTextDom(licenseHtml);
 
+        // go next loop if license text dom is null
         if (licenseTextDom == null) {
           Logger.error(
             "$packageName's license text not found but license page($licenseHtmlString) is found.",
@@ -104,6 +137,7 @@ Future<void> main(List<String> arguments) async {
         licenseText = licenseTextDom.text.replaceAll("\n", "\n");
       }
 
+      // add packageInfo to List if licenseText can get
       packageInfoList.add(
         PackageInfo(
           name: packageName,
@@ -113,15 +147,21 @@ Future<void> main(List<String> arguments) async {
         ),
       );
     } catch (e, stackTrace) {
+      // add error package list and go next loop if cause some error
       errorPackageNameList.add(packageName);
-      Logger.error("Failed to generate $packageName.plist.",
-          error: e, stackTrace: stackTrace);
+      Logger.error(
+        "Failed to generate $packageName.plist.",
+        error: e,
+        stackTrace: stackTrace,
+      );
       continue;
     }
   }
 
   try {
+    // initialize Root.plist in Settings.bundle
     await PlistManager.initializeSettingsBudleRootPlist();
+    // create library's license plist and dart_license_plist's plist.
     await PlistManager.createDartLicensePlist(packageInfoList);
     if (errorPackageNameList.isNotEmpty) {
       Logger.error("-------------------------------------------");
@@ -130,8 +170,11 @@ Future<void> main(List<String> arguments) async {
       Logger.error("-------------------------------------------");
     }
   } catch (e, stackTrace) {
-    Logger.error("Failed to generate license plist.",
-        error: e, stackTrace: stackTrace);
+    Logger.error(
+      "Failed to generate license plist.",
+      error: e,
+      stackTrace: stackTrace,
+    );
     return;
   }
 
