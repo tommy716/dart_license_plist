@@ -1,0 +1,19 @@
+{
+  "configurations": [
+    {
+      "name": "Dart: Run all Tests",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceRoot}/test/",
+      "program": "./test.dart"
+    },
+    {
+      "name": "Dart",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "program": "bin/main.dart"
+    },
+
+  ]
+}
