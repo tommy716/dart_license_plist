@@ -108,8 +108,10 @@ Future<void> main(List<String> arguments) async {
     final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
       customLicenseYamlPath,
     );
+    final YamlMap customLicensePackagesYamlMap =
+        YamlParser.getPackagesValue(customLicenseYamlMap);
     customLicensePackageNameList.addAll(
-      YamlManager.getYamlMapKeys(customLicenseYamlMap),
+      YamlManager.getYamlMapKeys(customLicensePackagesYamlMap),
     );
 
     final List<PackageInfo> customLicensePckageInfoList =

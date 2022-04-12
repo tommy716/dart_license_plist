@@ -16,6 +16,11 @@ class YamlParser {
   static const String _packagesKey = 'packages';
   static const String _licenseKey = 'license';
 
+  /// get packages section
+  static YamlMap getPackagesValue(YamlMap yamlMap) {
+    return yamlMap[_packagesKey];
+  }
+
   /// parse custom license yaml
   static List<PackageInfo> parseCustomLicenseYaml(YamlMap yamlMap) {
     final List<PackageInfo> packageInfoList = [];

@@ -23,3 +23,8 @@
 - Fix arguments parse bug.
 - Update README.md.
 - Change custom_license_yaml argument name to custom-license-yaml.
+
+# 1.1.0
+
+- Fix custom-license-yaml argument parse flow.
+- Add method to YamlParser(getPackagesValue)
