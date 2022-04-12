@@ -10,6 +10,7 @@
 import 'package:html/parser.dart';
 import 'package:html/dom.dart';
 import 'package:pub_updater/pub_updater.dart';
+import 'package:yaml/yaml.dart';
 
 import 'common/logger.dart';
 import 'common/utils.dart' as utils;
@@ -19,8 +20,16 @@ import 'entity/package_info.dart';
 import 'client/http_client.dart' as client;
 import 'extension/string_extension.dart';
 import 'manager/plist_manager.dart';
+import 'manager/yaml_manager.dart';
 import 'parser/html_parser.dart' as parser;
+import 'parser/yaml_parser.dart';
 
+/*
+ * Takes the following arguments:
+ * --version, -v                      show the current version and check updates.
+ * --verbose                          print debug messages.
+ * --custom_license_yaml=<file.yaml>  The path to the custom license yaml file.
+ */
 Future<void> main(List<String> arguments) async {
   // print library version and check library updates.
   if (arguments.contains("--version") || arguments.contains("-v")) {
@@ -54,15 +63,60 @@ Future<void> main(List<String> arguments) async {
     Logger.debug("Verbose Mode Enabled.");
   }
 
+  // valid arguments with values
+  const ignoredParseArguments = ["--version", "-v", "--verbose"];
+  const validArgsWithValue = ['--custom_license_yaml'];
+  // argument-value map
+  final Map<String, String> argsMap = Map<String, String>();
   // package name list from pubspec.yamll
   final List<dynamic> packageNameList = client.HttpClient.fetchPluginNameList();
+  // custom license package name list
+  final List<String> customLicensePackageNameList = [];
   // package info list
   final List<PackageInfo> packageInfoList = [];
   // package name list of can not create plist
   final List<String> errorPackageNameList = [];
 
+  /// parse arguments
+  for (final argument in arguments) {
+    // parse skip if argument is ignored.
+    if (ignoredParseArguments.contains(argument)) continue;
+    // argument split by '='
+    final List<String> argumentSplit = argument.split("=");
+    // throw error if arguments is invalid.
+    if (!validArgsWithValue.contains(argumentSplit[0])) {
+      throw AssertionError(
+        "Invalid argument: $argument",
+      );
+    }
+    // throw error if argument has value.
+    if (argumentSplit.length != 2) {
+      throw AssertionError("Invalid argument: $argument, value is required.");
+    }
+    // add argument-value map
+    argsMap[argumentSplit[0].substring(2)] = argumentSplit[1];
+  }
+
+  // parse custom license yaml
+  if (argsMap.containsKey("custom_license_yaml")) {
+    final String customLicenseYamlPath = argsMap["custom_license_yaml"]!;
+    final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(customLicenseYamlPath);
+    customLicensePackageNameList.addAll(
+      YamlManager.getYamlMapKeys(customLicenseYamlMap),
+    );
+
+    final List<PackageInfo> customLicensePckageInfoList = YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
+    packageInfoList.addAll(customLicensePckageInfoList);
+  }
+
   /// create packageInfo from package name
   for (var packageName in packageNameList) {
+    // skip custom license package name
+    if (customLicensePackageNameList.contains(packageName)) {
+      Logger.info("$packageName exsits in custom license yaml. Fetch Skipping...");
+      continue;
+    }
+
     try {
       // package site url on pub.dev
       final String packageSiteUrl = "$pubDevUrl/packages/$packageName";
@@ -161,6 +215,8 @@ Future<void> main(List<String> arguments) async {
   try {
     // initialize Root.plist in Settings.bundle
     await PlistManager.initializeSettingsBudleRootPlist();
+    // sorting packageInfoList by package name
+    packageInfoList.sort((a, b) => a.name.compareTo(b.name));
     // create library's license plist and dart_license_plist's plist.
     await PlistManager.createDartLicensePlist(packageInfoList);
     if (errorPackageNameList.isNotEmpty) {
