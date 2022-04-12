@@ -1,7 +1,7 @@
 name: dart_license_plist
 version: 1.0.1
 
-description: command-line tool to generate a license file for the Dart
+description: command-line tool to generate a license plist file for the Dart programming language.
 repository: https://github.com/nomunomu0504/dart_license_plist
 
 environment:
@@ -9,11 +9,7 @@ environment:
 
 platforms:
   - iOS
-  - Android
-  - Web
-  - Windows
   - MacOS
-  - Linux
 
 dependencies:
   collection: ^1.16.0
