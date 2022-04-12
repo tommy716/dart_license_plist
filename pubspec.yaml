@@ -1,5 +1,5 @@
 name: dart_license_plist
-description: A simple command-line application.
+description: command-line tool to generate a license file for the Dart
 version: 1.0.0
 homepage: https://github.com/nomunomu0504/dart_license_plist
 
