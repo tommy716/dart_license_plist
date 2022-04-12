@@ -100,12 +100,15 @@ Future<void> main(List<String> arguments) async {
   // parse custom license yaml
   if (argsMap.containsKey("custom_license_yaml")) {
     final String customLicenseYamlPath = argsMap["custom_license_yaml"]!;
-    final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(customLicenseYamlPath);
+    final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
+      customLicenseYamlPath,
+    );
     customLicensePackageNameList.addAll(
       YamlManager.getYamlMapKeys(customLicenseYamlMap),
     );
 
-    final List<PackageInfo> customLicensePckageInfoList = YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
+    final List<PackageInfo> customLicensePckageInfoList =
+        YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
     packageInfoList.addAll(customLicensePckageInfoList);
   }
 
@@ -113,7 +116,9 @@ Future<void> main(List<String> arguments) async {
   for (var packageName in packageNameList) {
     // skip custom license package name
     if (customLicensePackageNameList.contains(packageName)) {
-      Logger.info("$packageName exsits in custom license yaml. Fetch Skipping...");
+      Logger.info(
+        "$packageName exsits in custom license yaml. Fetch Skipping...",
+      );
       continue;
     }
 
@@ -141,7 +146,8 @@ Future<void> main(List<String> arguments) async {
       // license page url
       String licenseUrl = licenseDom.attributes["href"]!;
       // true if license url is in github
-      final bool isGitHubRepositoryLicense = licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
+      final bool isGitHubRepositoryLicense =
+          licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
 
       // parsed license text
       String licenseText = "";
@@ -178,7 +184,8 @@ Future<void> main(List<String> arguments) async {
         // license html string to license html document
         final Document licenseHtml = parse(licenseHtmlString);
         // get license text dom from license html document
-        final Element? licenseTextDom = parser.HtmlParser.parseLicenseTextDom(licenseHtml);
+        final Element? licenseTextDom =
+            parser.HtmlParser.parseLicenseTextDom(licenseHtml);
 
         // go next loop if license text dom is null
         if (licenseTextDom == null) {

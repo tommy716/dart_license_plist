@@ -30,14 +30,18 @@ Future<void> main() async {
         },
       );
 
-      final YamlMap customLicenseYamlMap = YamlManager.getYamlMap("./test/assets/license.yaml");
+      final YamlMap customLicenseYamlMap =
+          YamlManager.getYamlMap("./test/assets/license.yaml");
 
-      expect(correctYamlMap.toString() == customLicenseYamlMap.toString(), true);
+      expect(
+          correctYamlMap.toString() == customLicenseYamlMap.toString(), true);
     });
 
     test("parseCustomLicenseYaml()", () async {
-      final YamlMap customLicenseYamlMap = YamlManager.getYamlMap("./test/assets/license.yaml");
-      final List<PackageInfo> packageInfoList = YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
+      final YamlMap customLicenseYamlMap =
+          YamlManager.getYamlMap("./test/assets/license.yaml");
+      final List<PackageInfo> packageInfoList =
+          YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
 
       expect(packageInfoList.length == 1, true);
       expect(packageInfoList[0].name == "package_name", true);
