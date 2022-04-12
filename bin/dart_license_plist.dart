@@ -28,7 +28,7 @@ import 'parser/yaml_parser.dart';
  * Takes the following arguments:
  * --version, -v                      show the current version and check updates.
  * --verbose                          print debug messages.
- * --custom_license_yaml=<file.yaml>  The path to the custom license yaml file.
+ * --custom-license-yaml=<file.yaml>  The path to the custom license yaml file.
  */
 Future<void> main(List<String> arguments) async {
   // print library version and check library updates.
@@ -65,7 +65,7 @@ Future<void> main(List<String> arguments) async {
 
   // valid arguments with values
   const ignoredParseArguments = ["--version", "-v", "--verbose"];
-  const validArgsWithValue = ['--custom_license_yaml'];
+  const validArgsWithValue = ['--custom-license-yaml'];
   // argument-value map
   final Map<String, String> argsMap = Map<String, String>();
   // package name list from pubspec.yamll
@@ -82,7 +82,12 @@ Future<void> main(List<String> arguments) async {
     // parse skip if argument is ignored.
     if (ignoredParseArguments.contains(argument)) continue;
     // argument split by '='
-    final List<String> argumentSplit = argument.split("=");
+    final List<String> argumentSplit = argument
+        .split("=")
+        .map(
+          (e) => e.trim(),
+        )
+        .toList();
     // throw error if arguments is invalid.
     if (!validArgsWithValue.contains(argumentSplit[0])) {
       throw AssertionError(
@@ -98,8 +103,8 @@ Future<void> main(List<String> arguments) async {
   }
 
   // parse custom license yaml
-  if (argsMap.containsKey("custom_license_yaml")) {
-    final String customLicenseYamlPath = argsMap["custom_license_yaml"]!;
+  if (argsMap.containsKey("custom-license-yaml")) {
+    final String customLicenseYamlPath = argsMap["custom-license-yaml"]!;
     final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
       customLicenseYamlPath,
     );

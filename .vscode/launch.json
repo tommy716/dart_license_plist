@@ -12,8 +12,8 @@
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceRoot}",
-      "program": "./bin/dart_license_plist.dart"
-    },
-
+      "program": "./bin/dart_license_plist.dart",
+      "args": [" --custom_license_yaml=test.yaml"]
+    }
   ]
 }

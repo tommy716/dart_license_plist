@@ -14,6 +14,12 @@
 
 ## 1.0.3
 
-- make few tests.
-- support custom_license_yaml arguments.
-- fix vscode launch.json bugs.
+- Make few tests.
+- Support custom_license_yaml arguments.
+- Fix vscode launch.json bugs.
+
+## 1.0.4
+
+- Fix arguments parse bug.
+- Update README.md.
+- Change custom_license_yaml argument name to custom-license-yaml.

@@ -19,6 +19,23 @@ import 'consts.dart';
 
 Future<void> main() async {
   group("parse custom license yaml flow test", () {
+    test("custom-license-yaml arguments", () {
+      const validArgsWithValue = ['--custom-license-yaml'];
+      const String argument =
+          "--custom-license-yaml=./dummy/custom_license.yaml";
+      // argument split by '='
+      final List<String> argumentSplit = argument.split("=");
+      // throw error if arguments is invalid.
+      if (!validArgsWithValue.contains(argumentSplit[0])) {
+        throw AssertionError(
+          "Invalid argument: $argument",
+        );
+      }
+      // throw error if argument has value.
+      if (argumentSplit.length != 2) {
+        throw AssertionError("Invalid argument: $argument, value is required.");
+      }
+    });
     test("getYamlMap()", () async {
       final YamlMap correctYamlMap = YamlMap.wrap(
         {
