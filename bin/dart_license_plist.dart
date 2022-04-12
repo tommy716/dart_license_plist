@@ -51,7 +51,9 @@ Future<void> main(List<String> arguments) async {
       final String packageSiteUrl = "$pubDevUrl/packages/$packageName";
       Logger.info("-----");
       Logger.info("Fetching $packageName data... (URL: $packageSiteUrl)");
-      final String siteHtmlString = await client.HttpClient.fetchHtml(packageSiteUrl, packageName: packageName);
+      final String siteHtmlString = await client.HttpClient.fetchHtml(
+          packageSiteUrl,
+          packageName: packageName);
       final Document siteHtml = parse(siteHtmlString);
       final Element? licenseDom = parser.HtmlParser.parseLicenseDom(siteHtml);
 
@@ -61,7 +63,8 @@ Future<void> main(List<String> arguments) async {
       }
 
       String licenseUrl = licenseDom.attributes["href"]!;
-      final bool isGitHubRepositoryLicense = licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
+      final bool isGitHubRepositoryLicense =
+          licenseUrl.isGitHubUrl() || licenseUrl.isGitHubRawUrl();
 
       String licenseText = "";
       if (isGitHubRepositoryLicense) {
@@ -79,13 +82,17 @@ Future<void> main(List<String> arguments) async {
               "",
             );
         Logger.info("$packageName's license url: $licenseUrl");
-        licenseText = await client.HttpClient.fetchHtml(licenseUrl, packageName: packageName);
+        licenseText = await client.HttpClient.fetchHtml(licenseUrl,
+            packageName: packageName);
       } else {
         licenseUrl = "$pubDevUrl$licenseUrl";
         Logger.info("$packageName's license url: $licenseUrl");
-        final String licenseHtmlString = await client.HttpClient.fetchHtml(licenseUrl, packageName: packageName);
+        final String licenseHtmlString = await client.HttpClient.fetchHtml(
+            licenseUrl,
+            packageName: packageName);
         final Document licenseHtml = parse(licenseHtmlString);
-        final Element? licenseTextDom = parser.HtmlParser.parseLicenseTextDom(licenseHtml);
+        final Element? licenseTextDom =
+            parser.HtmlParser.parseLicenseTextDom(licenseHtml);
 
         if (licenseTextDom == null) {
           Logger.error(
@@ -107,7 +114,8 @@ Future<void> main(List<String> arguments) async {
       );
     } catch (e, stackTrace) {
       errorPackageNameList.add(packageName);
-      Logger.error("Failed to generate $packageName.plist.", error: e, stackTrace: stackTrace);
+      Logger.error("Failed to generate $packageName.plist.",
+          error: e, stackTrace: stackTrace);
       continue;
     }
   }
@@ -122,7 +130,8 @@ Future<void> main(List<String> arguments) async {
       Logger.error("-------------------------------------------");
     }
   } catch (e, stackTrace) {
-    Logger.error("Failed to generate license plist.", error: e, stackTrace: stackTrace);
+    Logger.error("Failed to generate license plist.",
+        error: e, stackTrace: stackTrace);
     return;
   }
 

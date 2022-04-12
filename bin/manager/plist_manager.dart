@@ -10,7 +10,8 @@ import '../entity/package_info.dart';
 class PlistManager {
   static Future<void> initializeSettingsBudleRootPlist() async {
     final Map<String, String> environment = Platform.environment;
-    final String settingBundlePath = "${environment["PWD"]}/ios/Runner/Settings.bundle";
+    final String settingBundlePath =
+        "${environment["PWD"]}/ios/Runner/Settings.bundle";
 
     if (!Directory(settingBundlePath).existsSync()) {
       throw AssertionError(
@@ -18,13 +19,17 @@ class PlistManager {
       );
     }
 
-    final File settingBundleRootPlistFile = File("$settingBundlePath/Root.plist");
-    final String settingBundleRootPlistString = settingBundleRootPlistFile.readAsStringSync();
+    final File settingBundleRootPlistFile =
+        File("$settingBundlePath/Root.plist");
+    final String settingBundleRootPlistString =
+        settingBundleRootPlistFile.readAsStringSync();
     final xml.XmlDocument settingBundleRootPlist = xml.XmlDocument.parse(
       settingBundleRootPlistString,
     );
-    final xml.XmlElement? arrayNode =
-        settingBundleRootPlist.getElement("plist")?.getElement("dict")?.getElement("array");
+    final xml.XmlElement? arrayNode = settingBundleRootPlist
+        .getElement("plist")
+        ?.getElement("dict")
+        ?.getElement("array");
 
     if (arrayNode == null) {
       throw AssertionError(
@@ -43,7 +48,8 @@ class PlistManager {
               .isNotEmpty,
         ) !=
         null) {
-      Logger.info("dart_license_plist already exists in Settings.bundle/Root.plist.");
+      Logger.info(
+          "dart_license_plist already exists in Settings.bundle/Root.plist.");
       return;
     }
 
@@ -57,16 +63,20 @@ class PlistManager {
         ..element("key", nest: "Type")
         ..element("string", nest: "PSChildPaneSpecifier");
     });
-    final xml.XmlDocumentFragment dartLicensePlistNode = xmlBuilder.buildFragment();
+    final xml.XmlDocumentFragment dartLicensePlistNode =
+        xmlBuilder.buildFragment();
     Logger.info(dartLicensePlistNode.toXmlString(pretty: true));
     arrayNode.children.insert(0, dartLicensePlistNode);
 
-    final modifiedSettingBundleRootPlistString = settingBundleRootPlist.toXmlString(pretty: true);
+    final modifiedSettingBundleRootPlistString =
+        settingBundleRootPlist.toXmlString(pretty: true);
 
-    settingBundleRootPlistFile.writeAsStringSync(modifiedSettingBundleRootPlistString, flush: true);
+    settingBundleRootPlistFile
+        .writeAsStringSync(modifiedSettingBundleRootPlistString, flush: true);
   }
 
-  static Future<void> createDartLicensePlist(List<PackageInfo> packageInfoList) async {
+  static Future<void> createDartLicensePlist(
+      List<PackageInfo> packageInfoList) async {
     Logger.info("Generating license plist...");
     final Map<String, String> environment = Platform.environment;
 
@@ -104,7 +114,9 @@ class PlistManager {
                 libraryLicensePlistBuilder.element("dict", nest: () {
                   libraryLicensePlistBuilder
                     ..element("key", nest: "FooterText")
-                    ..element("string", nest: packageInfo.licenseInfo.license.replaceAll("\n", "<br>"))
+                    ..element("string",
+                        nest: packageInfo.licenseInfo.license
+                            .replaceAll("\n", "<br>"))
                     ..element("Type", nest: "PSGroupSpecifier");
                 });
               });
@@ -120,7 +132,8 @@ class PlistManager {
           .replaceAll("&gt;", ">")
           .replaceAll("<br>", "\n");
       Logger.debug(licensePlistText);
-      final File licensePlistFile = File("$libraryLicensePlistDirPath/${packageInfo.name}.plist");
+      final File licensePlistFile =
+          File("$libraryLicensePlistDirPath/${packageInfo.name}.plist");
       licensePlistFile.writeAsStringSync(licensePlistText);
 
       final xml.XmlBuilder dartLicensePlistDictBuilder = xml.XmlBuilder();
@@ -142,7 +155,8 @@ class PlistManager {
           dartLicensePlistBuilder
             ..element("key", nest: "PreferenceSpecifiers")
             ..element("array", nest: () {
-              for (xml.XmlBuilder dartLicensePlistDictBuilder in dartLicensePlistDictBuilderList) {
+              for (xml.XmlBuilder dartLicensePlistDictBuilder
+                  in dartLicensePlistDictBuilderList) {
                 dartLicensePlistBuilder.element(
                   "dict",
                   nest: dartLicensePlistDictBuilder.buildFragment(),

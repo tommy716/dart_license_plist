@@ -14,7 +14,8 @@ class HtmlParser {
       return preLicense;
     }
 
-    final Element? markdownLicenseContent = html.getElementsByClassName("detail-tab-license-content").firstOrNull;
+    final Element? markdownLicenseContent =
+        html.getElementsByClassName("detail-tab-license-content").firstOrNull;
     if (markdownLicenseContent == null) {
       return null;
     }

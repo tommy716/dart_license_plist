@@ -33,9 +33,12 @@ class HttpClient {
     var responseString = await response.stream.bytesToString();
 
     if (response.isRedirect || shouldRedirect) {
-      if (response.headers["location"] != null && response.headers["location"]!.contains("api.flutter.dev")) {
-        final redirectUrl = "https://api.flutter.dev/flutter/$packageName/$packageName-library.html";
-        return await fetchHtml(redirectUrl, packageName: packageName, shouldRedirect: false);
+      if (response.headers["location"] != null &&
+          response.headers["location"]!.contains("api.flutter.dev")) {
+        final redirectUrl =
+            "https://api.flutter.dev/flutter/$packageName/$packageName-library.html";
+        return await fetchHtml(redirectUrl,
+            packageName: packageName, shouldRedirect: false);
       }
     }
 
