@@ -11,3 +11,9 @@
 - The license insert to files.
 - Add test package into dev_dependencies.
 - Add some comments.
+
+## 1.0.3
+
+- make few tests.
+- support custom_license_yaml arguments.
+- fix vscode launch.json bugs.
