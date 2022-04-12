@@ -12,7 +12,7 @@
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceRoot}",
-      "program": "bin/main.dart"
+      "program": "./bin/dart_license_plist.dart"
     },
 
   ]
