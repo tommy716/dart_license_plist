@@ -39,3 +39,7 @@
 # 1.1.2
 
 - Fix create plist function.
+
+# 1.1.3
+
+- Fix create plist function.

@@ -167,6 +167,13 @@ class PlistManager {
           dartLicensePlistBuilder
             ..element("key", nest: "PreferenceSpecifiers")
             ..element("array", nest: () {
+              dartLicensePlistBuilder.element("dict", nest: () {
+                dartLicensePlistBuilder
+                  ..element("key", nest: "Title")
+                  ..element("string", nest: "Licenses")
+                  ..element("key", nest: "Type")
+                  ..element("string", nest: "PSGroupSpecifier");
+              });
               for (xml.XmlBuilder dartLicensePlistDictBuilder
                   in dartLicensePlistDictBuilderList) {
                 dartLicensePlistBuilder.element(
