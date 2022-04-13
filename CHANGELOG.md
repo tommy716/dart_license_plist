@@ -28,3 +28,10 @@
 
 - Fix custom-license-yaml argument parse flow.
 - Add method to YamlParser(getPackagesValue)
+
+# 1.1.1
+
+- Support exclude packages in custom-license-yaml file.
+- Change custom-license-yaml argument parse flow.
+- Update test case.
+- Update README.md

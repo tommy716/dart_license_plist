@@ -13,11 +13,17 @@ import '../entity/license_info.dart';
 import '../entity/package_info.dart';
 
 class YamlParser {
+  static const String _excludeKey = "exclude";
   static const String _packagesKey = 'packages';
   static const String _licenseKey = 'license';
 
+  /// get exclude packages name section
+  static YamlMap? getExcludePackages(YamlMap yamlMap) {
+    return yamlMap[_excludeKey];
+  }
+
   /// get packages section
-  static YamlMap getPackagesValue(YamlMap yamlMap) {
+  static YamlMap? getPackagesValue(YamlMap yamlMap) {
     return yamlMap[_packagesKey];
   }
 

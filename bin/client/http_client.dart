@@ -40,10 +40,8 @@ class HttpClient {
     bool shouldRedirect = true,
   }) async {
     final Uri uri = Uri.parse(url);
-    final client = http.Client();
-    final request = http.Request("GET", uri)..followRedirects = false;
-    final response = await client.send(request);
-    var responseString = await response.stream.bytesToString();
+    final response =
+        await http.get(uri, headers: {"Content-Type": "text/html"});
 
     if (response.isRedirect || shouldRedirect) {
       final String? location = response.headers["localtion"];
@@ -64,12 +62,12 @@ class HttpClient {
       );
     }
 
-    if (responseString.isEmpty) {
+    if (response.body.isEmpty) {
       throw AssertionError(
         "Failed to fetch the url($url) (response body is empty). ",
       );
     }
 
-    return responseString;
+    return response.body;
   }
 }

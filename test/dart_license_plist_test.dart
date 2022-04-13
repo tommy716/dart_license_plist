@@ -7,14 +7,13 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-import 'dart:io';
-
 import "package:test/test.dart";
 import 'package:yaml/yaml.dart';
 
 import "../bin/manager/yaml_manager.dart";
 import "../bin/parser/yaml_parser.dart";
 import "../bin/entity/package_info.dart";
+import "../bin/common/logger.dart";
 import 'consts.dart';
 
 Future<void> main() async {
@@ -39,6 +38,9 @@ Future<void> main() async {
     test("getYamlMap()", () async {
       final YamlMap correctYamlMap = YamlMap.wrap(
         {
+          "exclude": {
+            "package_name1": null,
+          },
           "packages": {
             "package_name": {
               "license": mitLicenseText,
@@ -63,6 +65,114 @@ Future<void> main() async {
       expect(packageInfoList.length == 1, true);
       expect(packageInfoList[0].name == "package_name", true);
       expect(packageInfoList[0].licenseInfo.license == mitLicenseText, true);
+    });
+
+    test("test license_without_exclude", () {
+      // get yaml object
+      final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
+        "./test/assets/license_without_exclude.yaml",
+      );
+
+      /// create exclude package info
+      // parse exclude section from yaml object
+      final YamlMap? excludePackageNameYamlList = YamlParser.getExcludePackages(
+        customLicenseYamlMap,
+      );
+
+      final List<String> excludePackageNameList = [];
+      if (excludePackageNameYamlList != null) {
+        // get package name list from yaml object
+        excludePackageNameList.addAll(YamlManager.getYamlMapKeys(
+          excludePackageNameYamlList,
+        ));
+        Logger.info("-----");
+        Logger.info("Exclude package name list");
+        Logger.info(excludePackageNameList.join("\n"));
+      }
+
+      /// create custom license info
+      // parse packages section from yaml object
+      final YamlMap? customLicensePackagesYamlMap = YamlParser.getPackagesValue(
+        customLicenseYamlMap,
+      );
+
+      final List<String> customLicensePackageNameList = [];
+      if (customLicensePackagesYamlMap != null) {
+        // get package name list from yaml object
+        customLicensePackageNameList.addAll(YamlManager.getYamlMapKeys(
+          customLicensePackagesYamlMap,
+        ));
+        Logger.info("-----");
+        Logger.info("Custom license package name list");
+        Logger.info(customLicensePackageNameList.join("\n"));
+      }
+
+      /// check both list
+      final Set excludePackageNameListSet = excludePackageNameList.toSet();
+      final Set customLicensePackageNameListSet =
+          customLicensePackageNameList.toSet();
+      final Set intersection = excludePackageNameListSet.intersection(
+        customLicensePackageNameListSet,
+      );
+
+      expect(excludePackageNameList.isEmpty, true);
+      expect(customLicensePackageNameList.length == 1, true);
+      expect(customLicensePackageNameList.first == "package_name", true);
+      expect(intersection.isNotEmpty, false);
+    });
+
+    test("test license_without_packages", () {
+      // get yaml object
+      final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
+        "./test/assets/license_without_packages.yaml",
+      );
+
+      /// create exclude package info
+      // parse exclude section from yaml object
+      final YamlMap? excludePackageNameYamlList = YamlParser.getExcludePackages(
+        customLicenseYamlMap,
+      );
+
+      final List<String> excludePackageNameList = [];
+      if (excludePackageNameYamlList != null) {
+        // get package name list from yaml object
+        excludePackageNameList.addAll(YamlManager.getYamlMapKeys(
+          excludePackageNameYamlList,
+        ));
+        Logger.info("-----");
+        Logger.info("Exclude package name list");
+        Logger.info(excludePackageNameList.join("\n"));
+      }
+
+      /// create custom license info
+      // parse packages section from yaml object
+      final YamlMap? customLicensePackagesYamlMap = YamlParser.getPackagesValue(
+        customLicenseYamlMap,
+      );
+
+      final List<String> customLicensePackageNameList = [];
+      if (customLicensePackagesYamlMap != null) {
+        // get package name list from yaml object
+        customLicensePackageNameList.addAll(YamlManager.getYamlMapKeys(
+          customLicensePackagesYamlMap,
+        ));
+        Logger.info("-----");
+        Logger.info("Custom license package name list");
+        Logger.info(customLicensePackageNameList.join("\n"));
+      }
+
+      /// check both list
+      final Set excludePackageNameListSet = excludePackageNameList.toSet();
+      final Set customLicensePackageNameListSet =
+          customLicensePackageNameList.toSet();
+      final Set intersection = excludePackageNameListSet.intersection(
+        customLicensePackageNameListSet,
+      );
+
+      expect(excludePackageNameList.length == 1, true);
+      expect(excludePackageNameList.first == "package_name", true);
+      expect(customLicensePackageNameList.isEmpty, true);
+      expect(intersection.isNotEmpty, false);
     });
   });
 }

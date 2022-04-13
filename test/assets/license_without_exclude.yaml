@@ -1,6 +1,3 @@
-exclude:
-  package_name1:
-
 packages:
   package_name:
     license: |

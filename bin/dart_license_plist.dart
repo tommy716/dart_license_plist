@@ -64,23 +64,26 @@ Future<void> main(List<String> arguments) async {
   }
 
   // valid arguments with values
-  const ignoredParseArguments = ["--version", "-v", "--verbose"];
-  const validArgsWithValue = ['--custom-license-yaml'];
+  const _ignoredParseArguments = ["--version", "-v", "--verbose"];
+  const _validArgsWithValue = ['--custom-license-yaml'];
   // argument-value map
-  final Map<String, String> argsMap = Map<String, String>();
+  final Map<String, String> _argsMap = Map<String, String>();
   // package name list from pubspec.yamll
-  final List<dynamic> packageNameList = client.HttpClient.fetchPluginNameList();
+  final List<dynamic> _packageNameList =
+      client.HttpClient.fetchPluginNameList();
+  // exclude package name list
+  final List<String> _excludePackageNameList = [];
   // custom license package name list
-  final List<String> customLicensePackageNameList = [];
+  final List<String> _customLicensePackageNameList = [];
   // package info list
-  final List<PackageInfo> packageInfoList = [];
+  final List<PackageInfo> _packageInfoList = [];
   // package name list of can not create plist
-  final List<String> errorPackageNameList = [];
+  final List<String> _errorPackageNameList = [];
 
   /// parse arguments
   for (final argument in arguments) {
     // parse skip if argument is ignored.
-    if (ignoredParseArguments.contains(argument)) continue;
+    if (_ignoredParseArguments.contains(argument)) continue;
     // argument split by '='
     final List<String> argumentSplit = argument
         .split("=")
@@ -89,7 +92,7 @@ Future<void> main(List<String> arguments) async {
         )
         .toList();
     // throw error if arguments is invalid.
-    if (!validArgsWithValue.contains(argumentSplit[0])) {
+    if (!_validArgsWithValue.contains(argumentSplit[0])) {
       throw AssertionError(
         "Invalid argument: $argument",
       );
@@ -99,32 +102,91 @@ Future<void> main(List<String> arguments) async {
       throw AssertionError("Invalid argument: $argument, value is required.");
     }
     // add argument-value map
-    argsMap[argumentSplit[0].substring(2)] = argumentSplit[1];
+    _argsMap[argumentSplit[0].substring(2)] = argumentSplit[1];
   }
 
   // parse custom license yaml
-  if (argsMap.containsKey("custom-license-yaml")) {
-    final String customLicenseYamlPath = argsMap["custom-license-yaml"]!;
+  if (_argsMap.containsKey("custom-license-yaml")) {
+    // get custom license yaml path
+    final String customLicenseYamlPath = _argsMap["custom-license-yaml"]!;
+    // get yaml object
     final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
       customLicenseYamlPath,
     );
-    final YamlMap customLicensePackagesYamlMap =
-        YamlParser.getPackagesValue(customLicenseYamlMap);
-    customLicensePackageNameList.addAll(
-      YamlManager.getYamlMapKeys(customLicensePackagesYamlMap),
+
+    /// create exclude package info
+    // parse exclude section from yaml object
+    final YamlMap? excludePackageNameYamlList = YamlParser.getExcludePackages(
+      customLicenseYamlMap,
     );
 
+    final List<String> excludePackageNameList = [];
+    if (excludePackageNameYamlList != null) {
+      // get package name list from yaml object
+      excludePackageNameList.addAll(YamlManager.getYamlMapKeys(
+        excludePackageNameYamlList,
+      ));
+      Logger.info("-----");
+      Logger.info("Exclude package name list");
+      Logger.info(excludePackageNameList.join("\n"));
+    }
+
+    /// create custom license info
+    // parse packages section from yaml object
+    final YamlMap? customLicensePackagesYamlMap = YamlParser.getPackagesValue(
+      customLicenseYamlMap,
+    );
+
+    final List<String> customLicensePackageNameList = [];
+    if (customLicensePackagesYamlMap != null) {
+      // get package name list from yaml object
+      customLicensePackageNameList.addAll(YamlManager.getYamlMapKeys(
+        customLicensePackagesYamlMap,
+      ));
+      Logger.info("-----");
+      Logger.info("Custom license package name list");
+      Logger.info(customLicensePackageNameList.join("\n"));
+    }
+
+    /// check both list
+    final Set excludePackageNameListSet = excludePackageNameList.toSet();
+    final Set customLicensePackageNameListSet =
+        customLicensePackageNameList.toSet();
+    final Set intersection = excludePackageNameListSet.intersection(
+      customLicensePackageNameListSet,
+    );
+
+    if (intersection.isNotEmpty) {
+      throw AssertionError(
+        "The following packages are both in the exclude and the packages sections: $intersection",
+      );
+    }
+
+    // parse package info list from yaml object
     final List<PackageInfo> customLicensePckageInfoList =
         YamlParser.parseCustomLicenseYaml(customLicenseYamlMap);
-    packageInfoList.addAll(customLicensePckageInfoList);
+    // add exclude package name list
+    _excludePackageNameList.addAll(excludePackageNameList);
+    // add custom license package name to name list
+    _customLicensePackageNameList.addAll(customLicensePackageNameList);
+    // add custom license info to package info list
+    _packageInfoList.addAll(customLicensePckageInfoList);
   }
 
   /// create packageInfo from package name
-  for (var packageName in packageNameList) {
+  for (var packageName in _packageNameList) {
     // skip custom license package name
-    if (customLicensePackageNameList.contains(packageName)) {
+    if (_customLicensePackageNameList.contains(packageName)) {
       Logger.info(
         "$packageName exsits in custom license yaml. Fetch Skipping...",
+      );
+      continue;
+    }
+
+    // skip exclude license package name
+    if (_excludePackageNameList.contains(packageName)) {
+      Logger.info(
+        "$packageName is setting exclude. Fetch Skipping...",
       );
       continue;
     }
@@ -206,7 +268,7 @@ Future<void> main(List<String> arguments) async {
       }
 
       // add packageInfo to List if licenseText can get
-      packageInfoList.add(
+      _packageInfoList.add(
         PackageInfo(
           name: packageName,
           licenseInfo: LicenseInfo(
@@ -216,7 +278,7 @@ Future<void> main(List<String> arguments) async {
       );
     } catch (e, stackTrace) {
       // add error package list and go next loop if cause some error
-      errorPackageNameList.add(packageName);
+      _errorPackageNameList.add(packageName);
       Logger.error(
         "Failed to generate $packageName.plist.",
         error: e,
@@ -230,13 +292,13 @@ Future<void> main(List<String> arguments) async {
     // initialize Root.plist in Settings.bundle
     await PlistManager.initializeSettingsBudleRootPlist();
     // sorting packageInfoList by package name
-    packageInfoList.sort((a, b) => a.name.compareTo(b.name));
+    _packageInfoList.sort((a, b) => a.name.compareTo(b.name));
     // create library's license plist and dart_license_plist's plist.
-    await PlistManager.createDartLicensePlist(packageInfoList);
-    if (errorPackageNameList.isNotEmpty) {
+    await PlistManager.createDartLicensePlist(_packageInfoList);
+    if (_errorPackageNameList.isNotEmpty) {
       Logger.error("-------------------------------------------");
       Logger.error("Failed to generate following packages:");
-      Logger.error(errorPackageNameList.join("\n"));
+      Logger.error(_errorPackageNameList.join("\n"));
       Logger.error("-------------------------------------------");
     }
   } catch (e, stackTrace) {

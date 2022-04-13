@@ -57,7 +57,21 @@ The data of parsed custom-license-yaml takes priority over fetched license data 
 ### Yaml File Format
 
 ```
+exclude:
+  <fetch_exclude_package_name>:
+  <fetch_exclude_package_name>:
+  <fetch_exclude_package_name>:
+  ...
+
 packages:
+  <custom_license_package_name>:
+    license: |
+      <custom_license_text>
+
+  <custom_license_package_name>:
+    license: |
+      <custom_license_text>
+
   <custom_license_package_name>:
     license: |
       <custom_license_text>
@@ -66,6 +80,10 @@ packages:
 ### Yaml File Sample
 
 ```
+exclude:
+  package_name:
+  package_name_2:
+
 packages:
   package_name_1:
     license: |
@@ -91,6 +109,7 @@ packages:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
+
   package_name_2:
     license: |
       The MIT License
