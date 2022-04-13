@@ -7,7 +7,7 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-const packageVersion = '1.1.1';
+const packageVersion = '1.1.2';
 const packageName = "dart_license_plist";
 const packageScheme = "dev.nomunomu0504.dart_license_plist";
 

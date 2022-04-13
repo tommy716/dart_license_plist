@@ -128,7 +128,8 @@ class PlistManager {
                     ..element("string",
                         nest: packageInfo.licenseInfo.license
                             .replaceAll("\n", "<br>"))
-                    ..element("Type", nest: "PSGroupSpecifier");
+                    ..element("key", nest: "Type")
+                    ..element("string", nest: "PSGroupSpecifier");
                 });
               });
           });

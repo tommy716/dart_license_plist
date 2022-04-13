@@ -35,3 +35,7 @@
 - Change custom-license-yaml argument parse flow.
 - Update test case.
 - Update README.md
+
+# 1.1.2
+
+- Fix create plist function.
