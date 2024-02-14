@@ -65,7 +65,7 @@ Future<void> main(List<String> arguments) async {
 
   // valid arguments with values
   const _ignoredParseArguments = ["--version", "-v", "--verbose"];
-  const _validArgsWithValue = ['--custom-license-yaml'];
+  const _validArgsWithValue = ['--custom-license-yaml', '--pubspec-yaml'];
   // argument-value map
   final Map<String, String> _argsMap = Map<String, String>();
   // package name list from pubspec.yamll
@@ -79,6 +79,8 @@ Future<void> main(List<String> arguments) async {
   final List<PackageInfo> _packageInfoList = [];
   // package name list of can not create plist
   final List<String> _errorPackageNameList = [];
+
+  final List<String> _pubspecPackageNameList = [];
 
   /// parse arguments
   for (final argument in arguments) {
@@ -173,6 +175,32 @@ Future<void> main(List<String> arguments) async {
     _packageInfoList.addAll(customLicensePckageInfoList);
   }
 
+  if (_argsMap.containsKey("pubspec-yaml")) {
+    // get custom license yaml path
+    final String customLicenseYamlPath = _argsMap["pubspec-yaml"]!;
+    // get yaml object
+    final YamlMap customLicenseYamlMap = YamlManager.getYamlMap(
+      customLicenseYamlPath,
+    );
+
+    final YamlMap? packageNameYamlList = YamlParser.getDependenciesValue(
+      customLicenseYamlMap,
+    );
+
+    final List<String> packageNameList = [];
+    if (packageNameYamlList != null) {
+      // get package name list from yaml object
+      packageNameList.addAll(YamlManager.getYamlMapKeys(
+        packageNameYamlList,
+      ));
+      Logger.info("-----");
+      Logger.info("Package name list");
+      Logger.info(packageNameList.join("\n"));
+
+      _pubspecPackageNameList.addAll(packageNameList);
+    }
+  }
+
   /// create packageInfo from package name
   for (var packageName in _packageNameList) {
     // skip custom license package name
@@ -187,6 +215,14 @@ Future<void> main(List<String> arguments) async {
     if (_excludePackageNameList.contains(packageName)) {
       Logger.info(
         "$packageName is setting exclude. Fetch Skipping...",
+      );
+      continue;
+    }
+
+    if (_pubspecPackageNameList.isNotEmpty &&
+        !_pubspecPackageNameList.contains(packageName)) {
+      Logger.info(
+        "$packageName is not in pubspec.yaml. Fetch Skipping...",
       );
       continue;
     }

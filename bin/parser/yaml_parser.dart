@@ -16,6 +16,7 @@ class YamlParser {
   static const String _excludeKey = "exclude";
   static const String _packagesKey = 'packages';
   static const String _licenseKey = 'license';
+  static const String _dependenciesKey = 'dependencies';
 
   /// get exclude packages name section
   static YamlMap? getExcludePackages(YamlMap yamlMap) {
@@ -25,6 +26,11 @@ class YamlParser {
   /// get packages section
   static YamlMap? getPackagesValue(YamlMap yamlMap) {
     return yamlMap[_packagesKey];
+  }
+
+  /// get packages section
+  static YamlMap? getDependenciesValue(YamlMap yamlMap) {
+    return yamlMap[_dependenciesKey];
   }
 
   /// parse custom license yaml
