@@ -69,7 +69,7 @@ class PlistManager {
         ..element("key", nest: "File")
         ..element("string", nest: "dev.nomunomu0504.dart_license_plist")
         ..element("key", nest: "Title")
-        ..element("string", nest: "謝辞")
+        ..element("string", nest: "Lisences")
         ..element("key", nest: "Type")
         ..element("string", nest: "PSChildPaneSpecifier");
     });
