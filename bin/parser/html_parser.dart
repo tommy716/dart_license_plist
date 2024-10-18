@@ -14,7 +14,9 @@ import 'package:html/dom.dart';
 class HtmlParser {
   static Element? parseLicenseDom(Document html) {
     return html.querySelectorAll("a").firstWhereOrNull(
-          (dom) => dom.text == "LICENSE" || dom.text == "LICENSE.md",
+          (dom) =>
+              dom.text.toLowerCase() == "license" ||
+              dom.text.toLowerCase() == "license.md",
         );
   }
 
