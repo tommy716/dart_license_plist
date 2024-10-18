@@ -67,7 +67,7 @@ Future<void> main(List<String> arguments) async {
   const _ignoredParseArguments = ["--version", "-v", "--verbose"];
   const _validArgsWithValue = ['--custom-license-yaml', '--pubspec-yaml'];
   // argument-value map
-  final Map<String, String> _argsMap = Map<String, String>();
+  final Map<String, String> _argsMap = <String, String>{};
   // package name list from pubspec.yamll
   final List<dynamic> _packageNameList =
       client.HttpClient.fetchPluginNameList();
@@ -308,7 +308,7 @@ Future<void> main(List<String> arguments) async {
         PackageInfo(
           name: packageName,
           licenseInfo: LicenseInfo(
-            license: licenseText,
+            license: Uri.encodeFull(licenseText),
           ),
         ),
       );
